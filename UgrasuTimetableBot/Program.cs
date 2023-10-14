@@ -1,4 +1,6 @@
-using ArveCore.Botf;
+global using ArveCore.Botf;
+global using System;
+global using System.Collections.Generic;
 
 namespace UgrasuTimetableBot
 {
@@ -6,13 +8,21 @@ namespace UgrasuTimetableBot
     {
         public static void Main(string[] args)
         {
+            if (!File.Exists("appsettings.json"))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("[Error ] File appsettings.json is not exists");
+                Console.ResetColor();
+                return;
+            }
+
             var builder = WebApplication.CreateBuilder(args);
 
-            //builder.Services.TryAddBotf();
+            builder.Services.TryAddBotf(builder.Configuration.GetConnectionString("botf")!, default); //botf
 
             var app = builder.Build();
 
-            app.MapGet("/", () => "Hello World!");
+            app.TryUseBotf(dropPendingUpdates: true); //botf
 
             app.Run();
         }
