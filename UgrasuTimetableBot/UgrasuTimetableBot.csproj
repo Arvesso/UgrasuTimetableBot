@@ -11,8 +11,4 @@
     <PackageReference Include="ArveCore.Botf" Version="0.19.9" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>

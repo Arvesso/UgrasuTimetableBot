@@ -1,6 +1,8 @@
 global using ArveCore.Botf;
 global using System;
 global using System.Collections.Generic;
+using UgrasuTimetableBot.IOControl;
+using UgrasuTimetableBot.Services;
 
 namespace UgrasuTimetableBot
 {
@@ -17,6 +19,10 @@ namespace UgrasuTimetableBot
             }
 
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddScoped<ScheduleApi>();
+            builder.Services.AddSingleton<InMemoryStorage>();
+            builder.Services.AddHostedService<EntityUpdateService>();
 
             builder.Services.TryAddBotf(builder.Configuration.GetConnectionString("botf")!, default); //botf
 

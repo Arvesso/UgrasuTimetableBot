@@ -1,16 +1,21 @@
-﻿using ArveCore.Culture;
-using ArveCore;
+﻿using ArveCore;
+using ArveCore.Culture;
 using Microsoft.VisualBasic;
 using Telegram.Bot.Types.Enums;
+using UgrasuTimetableBot.IOControl;
 
 namespace UgrasuTimetableBot.BotControllers
 {
     public class MainController : BotController
     {
+        private readonly InMemoryStorage _storage;
+        private readonly ScheduleApi _scheduleApi;
         private readonly ILogger _logger;
-        public MainController(ILogger<MainController> logger)
+        public MainController(InMemoryStorage memoryStorage, ScheduleApi scheduleApi, ILogger<MainController> logger)
         {
             _logger = logger;
+            _storage = memoryStorage;
+            _scheduleApi = scheduleApi;
         }
 
         #region States
