@@ -15,21 +15,58 @@ namespace UgrasuTimetableBot.IOControl
             _logger = logger;
         }
 
-        public async Task<JArray?> GetScheduleObjectAsync(DateTime from, DateTime to, int oid)
+        public async Task<ScheduleObject?> GetScheduleObjectAsync(DateTime from, DateTime to, long oid)
         {
             using var client = new HttpClient();
+
+            var schedule = new ScheduleObject()
+            {
+                Lectures = new()
+            };
 
             try
             {
                 if (_storage.GetGroups.Any(g => g.Oid == oid))
                 {
                     var result = await client.GetStringAsync(GetGroupLessonsUri(from, to, oid));
-                    return JArray.Parse(result);
+                    var parsedResult = JArray.Parse(result);
+
+                    foreach (var element in parsedResult)
+                    {
+                        dynamic lecture = JObject.Parse(element.ToString());
+
+                        var day = (DayOfWeek)lecture.dayOfWeek;
+                        var position = (int)lecture.lessonNumberStart;
+                        var subject = (string)lecture.discipline;
+                        var group = (string)lecture.group;
+                        var tutor = (string)lecture.lecturer;
+                        var classroom = (string)lecture.auditorium;
+                        var start = (string)lecture.beginLesson;
+                        var end = (string)lecture.endLesson;
+
+                        if (!schedule.Lectures.ContainsKey(day))
+                        {
+                            schedule.Lectures.Add(day, new());
+                        }
+
+                        schedule.Lectures[day].Add(new Lecture()
+                        {
+                            Subject = subject,
+                            Group = group,
+                            Tutor = tutor,
+                            Classroom = classroom,
+                            StartTime = start,
+                            EndTime = end,
+                            Position = position
+                        });
+                    }
+
+                    return schedule;
                 }
                 else if (_storage.GetTutors.Any(t => t.Oid == oid))
                 {
                     var result = await client.GetStringAsync(GetTutorLessonsUri(from, to, oid));
-                    return JArray.Parse(result);
+                    return schedule;
                 }
             }
             catch (Exception ex) 
@@ -40,13 +77,13 @@ namespace UgrasuTimetableBot.IOControl
             return default;
         }
 
-        private string GetGroupLessonsUri(DateTime from, DateTime to, int oid)
+        private static string GetGroupLessonsUri(DateTime from, DateTime to, long oid)
         {
-            return BaseGroupApiUri.Replace("[1]", from.ToShortDateString()).Replace("[2]", to.ToShortDateString()).Replace("[3]", oid.ToString());
+            return BaseGroupApiUri.Replace("[1]", from.ToString("yyyy-MM-dd")).Replace("[2]", to.ToString("yyyy-MM-dd")).Replace("[3]", oid.ToString());
         }
-        private string GetTutorLessonsUri(DateTime from, DateTime to, int oid)
+        private static string GetTutorLessonsUri(DateTime from, DateTime to, long oid)
         {
-            return BaseTutorApiUri.Replace("[1]", from.ToShortDateString()).Replace("[2]", to.ToShortDateString()).Replace("[3]", oid.ToString());
+            return BaseTutorApiUri.Replace("[1]", from.ToString("yyyy-MM-dd")).Replace("[2]", to.ToString("yyyy-MM-dd")).Replace("[3]", oid.ToString());
         }
     }
 }

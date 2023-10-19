@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using UgrasuTimetableBot.Extensions;
 using UgrasuTimetableBot.IOControl;
 
 namespace UgrasuTimetableBot.Services
@@ -26,7 +27,9 @@ namespace UgrasuTimetableBot.Services
                 {
                     var groups = await GetGroups(stoppingToken);
                     var tutors = await GetTutors(stoppingToken);
-                    var faculties = groups.Select(g => g.Faculty).Distinct();
+                    var faculties = groups.Select(g => g.Faculty)
+                        .Distinct(new FacultyEqualityComparer())
+                        .Where(f => !Patterns.IgnoreEntry.Any(e => f.FacultyName.Contains(e, StringComparison.OrdinalIgnoreCase)));
 
                     _storage.ClearGroups();
                     _storage.ClearTutors();
@@ -71,12 +74,17 @@ namespace UgrasuTimetableBot.Services
 
                 var groupName = (string)element.name;
                 var groupFaculty = (string)element.faculty;
+                var groupFacultyOid = (int)element.facultyOid;
                 var groupOid = (int)element.groupOid;
 
                 var group = new Group()
                 {
                     Name = groupName,
-                    Faculty = groupFaculty,
+                    Faculty = new()
+                    {
+                        FacultyName = groupFaculty,
+                        FacultyOid = groupFacultyOid
+                    },
                     Oid = groupOid
                 };
 
