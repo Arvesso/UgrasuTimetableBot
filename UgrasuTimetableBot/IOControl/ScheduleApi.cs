@@ -51,11 +51,11 @@ namespace UgrasuTimetableBot.IOControl
                     return schedule;
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 _logger.LogWarning("An error has occured while sending request to schedule api: {0}", ex.Message);
             }
-          
+
             return default;
 
             static void ParseJArray(JArray jarray, ScheduleObject schedule)

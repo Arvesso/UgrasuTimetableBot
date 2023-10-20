@@ -1,7 +1,5 @@
 ﻿using ArveCore;
 using ArveCore.Culture;
-using ArveCore.SpkSchedule;
-using Microsoft.AspNetCore.Components.Forms;
 using Telegram.Bot.Types.Enums;
 using UgrasuTimetableBot.IOControl;
 
@@ -80,7 +78,7 @@ namespace UgrasuTimetableBot.BotControllers
         {
             if (Context.Update.Type == UpdateType.CallbackQuery)
             {
-                await AnswerCallback("Ошибка");           
+                await AnswerCallback("Ошибка");
             }
 
             await MainPanel();
@@ -220,7 +218,7 @@ namespace UgrasuTimetableBot.BotControllers
 
                 splitValue++;
             }
-             
+
             if (IsFacultySelected)
             {
                 RowButton("Назад", Q(MainPanel));

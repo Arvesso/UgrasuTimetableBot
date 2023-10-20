@@ -27,6 +27,8 @@ namespace UgrasuTimetableBot
 
             builder.Services.TryAddBotf(builder.Configuration.GetConnectionString("botf")!, default); //botf
 
+            builder.WebHost.UseUrls("http://localhost:5001"); // Any ports (In default uses to auto setting webhooks to botf endpoint)
+
             var app = builder.Build();
 
             app.TryUseBotf(dropPendingUpdates: true); //botf

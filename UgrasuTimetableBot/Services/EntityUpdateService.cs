@@ -55,7 +55,7 @@ namespace UgrasuTimetableBot.Services
                 {
                     break;
                 }
-                catch (Exception ex) 
+                catch (Exception ex)
                 {
                     _logger.LogWarning("An error has occured while updating entities: {0}", ex.Message);
                 }
