@@ -1,7 +1,5 @@
 global using ArveCore.Botf;
 global using ArveCore.Extensions;
-global using System;
-global using System.Collections.Generic;
 using UgrasuTimetableBot.IOControl;
 using UgrasuTimetableBot.Services;
 
