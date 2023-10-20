@@ -33,6 +33,7 @@
     public class Lecture
     {
         public required int Position { get; set; }
+        public required string Date { get; set; }
         public required string Subject { get; set; }
         public required string Group { get; set; }
         public required string Tutor { get; set; }

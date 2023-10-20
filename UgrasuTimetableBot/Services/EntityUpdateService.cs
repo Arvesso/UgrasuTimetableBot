@@ -29,7 +29,10 @@ namespace UgrasuTimetableBot.Services
                     var tutors = await GetTutors(stoppingToken);
                     var faculties = groups.Select(g => g.Faculty)
                         .Distinct(new FacultyEqualityComparer())
-                        .Where(f => !Patterns.IgnoreEntry.Any(e => f.FacultyName.Contains(e, StringComparison.OrdinalIgnoreCase)));
+                        .Where(f => !Patterns.IgnoreEntry.Any(e => f.FacultyName.Contains(e, StringComparison.OrdinalIgnoreCase)))
+                        .ToList();
+
+                    faculties.ForEach(f => f.FacultyName = f.FacultyName.ToLower().ToUpperFirstChar());
 
                     _storage.ClearGroups();
                     _storage.ClearTutors();

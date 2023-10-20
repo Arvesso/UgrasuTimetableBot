@@ -16,5 +16,26 @@
         public void ClearGroups() => Groups.Clear();
         public void ClearTutors() => Tutors.Clear();
         public void ClearFaculties() => Faculties.Clear();
+
+        public IEnumerable<Entity> FindBestTutorsMatches(IEnumerable<Entity> list, string input)
+        {
+            const double similarityValue = 0.419; // Higher - more precisely search
+
+            IEnumerable<Entity> result;
+
+            if (string.IsNullOrEmpty(input))
+                return Enumerable.Empty<Entity>();
+
+            var trimmedInput = input.Trim().TrimEnd('.');
+
+            result = list.Where(x => x.Name.Equals(trimmedInput, StringComparison.OrdinalIgnoreCase));
+
+            if (!result.Any())
+                result = list.Where(x => x.Name.Contains(trimmedInput, StringComparison.OrdinalIgnoreCase));
+            if (!result.Any())
+                result = list.Where(x => x.Name.CalculateSimilarity(trimmedInput) > similarityValue);
+
+            return result;
+        }
     }
 }
