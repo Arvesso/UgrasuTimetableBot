@@ -17,7 +17,7 @@
         public void ClearTutors() => Tutors.Clear();
         public void ClearFaculties() => Faculties.Clear();
 
-        public IEnumerable<Entity> FindBestTutorsMatches(IEnumerable<Entity> list, string input)
+        public IEnumerable<Entity> FindBestMatches(IEnumerable<Entity> list, string input)
         {
             const double similarityValue = 0.419; // Higher - more precisely search
 
@@ -26,14 +26,14 @@
             if (string.IsNullOrEmpty(input))
                 return Enumerable.Empty<Entity>();
 
-            var trimmedInput = input.Trim().TrimEnd('.');
+            input = input.Trim();
 
-            result = list.Where(x => x.Name.Equals(trimmedInput, StringComparison.OrdinalIgnoreCase));
+            result = list.Where(x => x.Name.Equals(input, StringComparison.OrdinalIgnoreCase));
 
             if (!result.Any())
-                result = list.Where(x => x.Name.Contains(trimmedInput, StringComparison.OrdinalIgnoreCase));
+                result = list.Where(x => x.Name.Contains(input, StringComparison.OrdinalIgnoreCase));
             if (!result.Any())
-                result = list.Where(x => x.Name.CalculateSimilarity(trimmedInput) > similarityValue);
+                result = list.Where(x => x.Name.CalculateSimilarity(input) > similarityValue);
 
             return result;
         }

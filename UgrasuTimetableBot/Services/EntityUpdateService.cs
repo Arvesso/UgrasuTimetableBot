@@ -16,7 +16,7 @@ namespace UgrasuTimetableBot.Services
         {
             _storage = memoryStorage;
             _logger = logger;
-            _updateTimeout = TimeSpan.FromMinutes(1);
+            _updateTimeout = TimeSpan.FromMinutes(1); // Every minute data updating (to save actuality)
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

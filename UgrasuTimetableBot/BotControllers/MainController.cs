@@ -71,6 +71,7 @@ namespace UgrasuTimetableBot.BotControllers
             }
 
             await MainPanel();
+            await Send();
         }
 
         [On(Handle.Exception)]
@@ -121,7 +122,7 @@ namespace UgrasuTimetableBot.BotControllers
 
             if (IsFacultySelected)
             {
-                Button("Поиск по группе", Q(SelectGroup, SelectedFacultyOid));
+                Button("Поиск по группе", Q(SelectGroup, SelectedFacultyOid, 0));
             }
             else
             {
@@ -183,7 +184,7 @@ namespace UgrasuTimetableBot.BotControllers
         }
 
         [Action]
-        public void SelectGroup(long facultyOid)
+        public void SelectGroup(long facultyOid, int page)
         {
             var faculty = _storage.GetFaculties.First(f => f.FacultyOid == facultyOid);
 
@@ -197,27 +198,13 @@ namespace UgrasuTimetableBot.BotControllers
             PushL(">");
             PushL();
 
-            int splitValue = 0;
+            var groups = _storage.GetGroups.Where(g => g.Faculty.FacultyOid == facultyOid);
 
-            foreach (var group in _storage.GetGroups)
-            {
-                if (group.Faculty.FacultyOid != facultyOid)
-                    continue;
+            var pager = new PagingService();
+            var query = groups.Select((c, i) => new { entity = c, index = i }).AsQueryable();
+            var pageModel = pager.Paging(query, new PageFilter { Count = 12, Page = page });
 
-                if (splitValue == 6)
-                    splitValue = 0;
-
-                if (splitValue == 0)
-                {
-                    RowButton(group.Name, Q(SelectDayOfWeekGroup, group.Oid));
-                }
-                else
-                {
-                    Button(group.Name, Q(SelectDayOfWeekGroup, group.Oid));
-                }
-
-                splitValue++;
-            }
+            Pager(pageModel, i => (i.entity.Name, Q(SelectDayOfWeekGroup, i.entity.Oid)), Q(SelectGroup, SelectedFacultyOid, "{0}"), 4);
 
             if (IsFacultySelected)
             {
@@ -252,7 +239,7 @@ namespace UgrasuTimetableBot.BotControllers
             Button("Сб", Q(ViewScheduleForDay, DayOfWeek.Saturday));
             RowButton("Сегодня", Q(ViewScheduleForDay, CTimezone.Current.DayOfWeek));
             Button("Вся неделя", Q(ViewSchedule));
-            RowButton("Назад", Q(SelectGroup, SelectedFacultyOid));
+            RowButton("Назад", Q(SelectGroup, SelectedFacultyOid, 0));
         }
 
         [Action]
@@ -262,6 +249,7 @@ namespace UgrasuTimetableBot.BotControllers
             PushL("");
             PushL("Примеры корректного ввода");
             PushL("");
+            PushL("• <i>брейн</i>");
             PushL("• <i>брейнерт</i>");
             PushL("• <i>брейнерт в.и</i>");
             PushL("• <i>Брейнерт В.И</i>");
@@ -277,7 +265,7 @@ namespace UgrasuTimetableBot.BotControllers
         [State]
         public async ValueTask EnterTutor(WaitEnterTutor _)
         {
-            var tutors = _storage.FindBestTutorsMatches(_storage.GetTutors, Context.GetSafeTextPayload() ?? string.Empty);
+            var tutors = _storage.FindBestMatches(_storage.GetTutors, Context.GetSafeTextPayload() ?? string.Empty);
 
             if (!tutors.Any())
             {
@@ -367,6 +355,8 @@ namespace UgrasuTimetableBot.BotControllers
 
             var schedule = await _scheduleApi.GetScheduleObjectAsync(CTimezone.StartOfWeek, CTimezone.EndOfWeek, SelectedEntityOid);
 
+            var isScheduleDetected = false;
+
             if (schedule is null)
             {
                 PushL("<b>Ошибка при получении данных, попробуйте снова</b>");
@@ -377,6 +367,8 @@ namespace UgrasuTimetableBot.BotControllers
                 {
                     if (!schedule.Lectures[day].Any())
                         continue;
+
+                    isScheduleDetected = true;
 
                     var date = schedule.Lectures[day][0].Date.ToUpperFirstChar();
 
@@ -391,6 +383,12 @@ namespace UgrasuTimetableBot.BotControllers
 
                     PushL("");
                 }
+            }
+
+            if (!isScheduleDetected)
+            {
+                PushL("<b>Нет пар на неделе</b>");
+                PushL("");
             }
 
             PushL(">");
