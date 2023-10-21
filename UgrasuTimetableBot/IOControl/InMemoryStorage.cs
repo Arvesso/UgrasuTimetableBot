@@ -19,7 +19,7 @@
 
         public IEnumerable<Entity> FindBestMatches(IEnumerable<Entity> list, string input)
         {
-            const double similarityValue = 0.419; // Higher - more precisely search
+            const double similarityValue = 0.41; // Higher - more precisely search
 
             IEnumerable<Entity> result;
 
